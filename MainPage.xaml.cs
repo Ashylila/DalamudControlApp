@@ -87,8 +87,8 @@ namespace DalamudControlApp
         {
             switch (command.Type)
             {
-                case WebSocketActionType.ChatMessageReceived:
-                    // Do something with the chat message
+                case WebSocketActionType.ChatMessage:
+                    ProcessChatMessage(command);
                     break;
                 case WebSocketActionType.SendChatMessage:
                     // Do something with the chat message
@@ -109,5 +109,19 @@ namespace DalamudControlApp
                     break;
             }
         }
+            private void ProcessChatMessage(WebSocketMessage<object> command)
+            {
+                if(command.Data is JsonElement data)
+                {
+                    var chatMessage = JsonSerializer.Deserialize<ChatMessage>(data.GetRawText());
+                    if(chatMessage == null)
+                    {
+                        return;
+                    }
+                    ChatService.ChatMessages.Add($"[{chatMessage.Timestamp}] [{chatMessage.Type}] {chatMessage.Sender}: {chatMessage.Message}");
+                    ChatService._chatMessages.Add(chatMessage);
+                }
+            }
+        
     }
 }

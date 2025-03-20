@@ -4,19 +4,19 @@
              x:Class="DalamudControlApp.MainPage"
              BackgroundColor="Black">
 
-    <Grid RowDefinitions="Auto,*,Auto" Padding="10">
+    <Grid RowDefinitions="50,*,Auto" Padding="10">
 
         <!-- Connect Button at the Top -->
         <Button Text="Connect"
                 Clicked="OnConnectClicked"
                 BackgroundColor="DarkGray"
                 TextColor="White"
-                Grid.Row="0"/>
+                Grid.Row="0"
+                />
 
         <!-- Console Output (fills available space) -->
         <CollectionView ItemsSource="{Binding Log}"
                         BackgroundColor="Black"
-                        VerticalOptions="FillAndExpand"
                         Grid.Row="1">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
@@ -29,18 +29,21 @@
         </CollectionView>
 
         <!-- Command Input at the Bottom -->
-        <HorizontalStackLayout Grid.Row="2" Padding="5">
+                <Grid Grid.Row="2" ColumnDefinitions="*, Auto" Margin="0,10,0,0">
             <Entry x:Name="CommandEntry"
                    Placeholder="Enter command..."
                    TextColor="White"
                    BackgroundColor="Black"
-                   FontFamily="Courier New"
-                   HorizontalOptions="FillAndExpand"/>
+                   Completed="OnSendCommandClicked"
+                   Grid.Column="0"/>
+            
             <Button Text="Send"
                     Clicked="OnSendCommandClicked"
-                    BackgroundColor="DarkGray"
-                    TextColor="White"/>
-        </HorizontalStackLayout>
+                    BackgroundColor="Gray"
+                    TextColor="White"
+                    Margin="5,0,0,0"
+                    Grid.Column="1"/>
+        </Grid>
 
     </Grid>
 

@@ -8,8 +8,11 @@
     Title="DalamudControlApp">
 
     <ShellContent
-        Title="Home"
+        Title="Console"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
-
+    <ShellContent
+        Title="Chat"
+        ContentTemplate="{DataTemplate local:ChatPage}"/>
+        
 </Shell>
