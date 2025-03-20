@@ -1,19 +1,25 @@
 ﻿using System.Net.WebSockets;
 using System.Text;
 using DalamudControlApp.Data.Models;
+using DalamudControlApp.Data.Enums;
+using DalamudControlApp.Util;
+using System.Collections.ObjectModel;
 
 namespace DalamudControlApp
 {
     public partial class MainPage : ContentPage
     {
+        public ObservableCollection<string> Log {get;} = new();
         public ClientWebSocket _webSocket;
 
         public MainPage()
         {
             InitializeComponent();
+            BindingContext = this;
+            Log.Add("Welcome to Dalamud Control App!");
         }
 
-        private async void ConnectButton_Clicked(object sender, EventArgs e)
+        private async void OnConnectClicked(object sender, EventArgs e)
         {
             if (_webSocket != null && _webSocket.State == WebSocketState.Open)
             {
@@ -34,7 +40,7 @@ namespace DalamudControlApp
             }
         }
 
-        private async void SendCommand_Clicked(object sender, EventArgs e)
+        private async void OnSendCommandClicked(object sender, EventArgs e)
         {
             if (_webSocket == null || _webSocket.State != WebSocketState.Open)
             {
@@ -44,12 +50,11 @@ namespace DalamudControlApp
 
             string command = CommandEntry.Text?.Trim();
             if (string.IsNullOrEmpty(command)) return;
-
-            byte[] messageBytes = Encoding.UTF8.GetBytes(command);
-            await _webSocket.SendAsync(new ArraySegment<byte>(messageBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+            
+            await _webSocket.SendAsync(new ArraySegment<byte>(CommandHelper.createCommand(command, WebSocketActionType.Command)), WebSocketMessageType.Text, true, CancellationToken.None);
             CommandEntry.Text = "";
         }
-
+        
         private async Task ReceiveMessages()
         {
             var buffer = new byte[1024];
@@ -61,21 +66,40 @@ namespace DalamudControlApp
 
                 try
                 {
-                    var message = System.Text.Json.JsonSerializer.Deserialize<ChatMessage>(json);
-                    if (message == null)
+                    var command = System.Text.Json.JsonSerializer.Deserialize<WebSocketMessage>(json);
+                    if (command == null)
                     {
-                        throw new Exception("Failed to deserialize message.");
+                        await DisplayAlert("Error", "Failed to deserialize message.", "OK");
+                        return;
                     }
-                                    MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    ChatLog.Text += $"[{message.Timestamp}] [{message.Type}] {message.Sender}: {message.Message}" + "\n";
-                });
+                    ProcessCommand(command);
+                                   
                 }catch(Exception ex)
                 {
                     await DisplayAlert("Error", $"Failed to deserialize message: {ex.Message}", "OK");
                     continue;
                 }
 
+            }
+        }
+        private void ProcessCommand(WebSocketMessage command)
+        {
+            switch (command.Type)
+            {
+                case WebSocketActionType.ChatMessageReceived:
+                    // Do something with the chat message
+                    break;
+                case WebSocketActionType.SendChatMessage:
+                    // Do something with the chat message
+                    break;
+                case WebSocketActionType.InvalidCommandUsage:
+                    Log.Add(command.Data);
+                    break;
+                case WebSocketActionType.CommandResponse:
+                    Log.Add(command.Data);
+                    break;
+                default:
+                    break;
             }
         }
     }

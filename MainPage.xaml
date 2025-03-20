@@ -1,18 +1,47 @@
-﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="DalamudControlApp.MainPage">
-    <VerticalStackLayout Padding="20">
-        <Label Text="Dalamud WebSocket Client"
-               FontSize="24"
-               HorizontalOptions="Center" />
+             x:Class="DalamudControlApp.MainPage"
+             BackgroundColor="Black">
 
-        <Button Text="Connect to Plugin" Clicked="ConnectButton_Clicked" />
-        <Entry x:Name="CommandEntry" Placeholder="Enter command..." />
-        <Button Text="Send Command" Clicked="SendCommand_Clicked" />
+    <Grid RowDefinitions="Auto,*,Auto" Padding="10">
 
-        <Label Text="Chat Messages:" FontSize="18" />
-        <ScrollView HeightRequest="300">
-            <Label x:Name="ChatLog" Text="" />
-        </ScrollView>
-    </VerticalStackLayout>
+        <!-- Connect Button at the Top -->
+        <Button Text="Connect"
+                Clicked="OnConnectClicked"
+                BackgroundColor="DarkGray"
+                TextColor="White"
+                Grid.Row="0"/>
+
+        <!-- Console Output (fills available space) -->
+        <CollectionView ItemsSource="{Binding Log}"
+                        BackgroundColor="Black"
+                        VerticalOptions="FillAndExpand"
+                        Grid.Row="1">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Label Text="{Binding .}"
+                           TextColor="White"
+                           FontFamily="Courier New"
+                           Padding="5"/>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Command Input at the Bottom -->
+        <HorizontalStackLayout Grid.Row="2" Padding="5">
+            <Entry x:Name="CommandEntry"
+                   Placeholder="Enter command..."
+                   TextColor="White"
+                   BackgroundColor="Black"
+                   FontFamily="Courier New"
+                   HorizontalOptions="FillAndExpand"/>
+            <Button Text="Send"
+                    Clicked="OnSendCommandClicked"
+                    BackgroundColor="DarkGray"
+                    TextColor="White"/>
+        </HorizontalStackLayout>
+
+    </Grid>
+
 </ContentPage>

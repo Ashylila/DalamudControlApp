@@ -1,7 +1,9 @@
-﻿namespace DalamudControlApp;
+﻿using System.Net.WebSockets;
+namespace DalamudControlApp;
 
 public partial class App : Application
 {
+	private readonly ClientWebSocket _server;
 	public App()
 	{
 		InitializeComponent();
@@ -11,4 +13,5 @@ public partial class App : Application
 	{
 		return new Window(new AppShell());
 	}
+
 }
