@@ -1,0 +1,18 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DalamudControlApp.MainPage">
+    <VerticalStackLayout Padding="20">
+        <Label Text="Dalamud WebSocket Client"
+               FontSize="24"
+               HorizontalOptions="Center" />
+
+        <Button Text="Connect to Plugin" Clicked="ConnectButton_Clicked" />
+        <Entry x:Name="CommandEntry" Placeholder="Enter command..." />
+        <Button Text="Send Command" Clicked="SendCommand_Clicked" />
+
+        <Label Text="Chat Messages:" FontSize="18" />
+        <ScrollView HeightRequest="300">
+            <Label x:Name="ChatLog" Text="" />
+        </ScrollView>
+    </VerticalStackLayout>
+</ContentPage>
