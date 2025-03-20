@@ -6,15 +6,16 @@ using System.Text.Json;
 namespace DalamudControlApp.Util;
 public static class CommandHelper
 {
-    public static byte[] createCommand (string command, WebSocketActionType type)
+    public static byte[] CreateCommand<T>(T data, WebSocketActionType type)
+{
+    var websocketCommand = new WebSocketMessage<T>
     {
-        var websocketcommand = new WebSocketMessage
-        {
-            Type = type,
-            Data = command
-        };
-        byte[] messageBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize<WebSocketMessage>(websocketcommand));
-        return messageBytes;
-    }
+        Type = type,
+        Data = data
+    };
+
+    string json = JsonSerializer.Serialize(websocketCommand);
+    return Encoding.UTF8.GetBytes(json);
+}
 
 }

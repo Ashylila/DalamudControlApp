@@ -4,6 +4,7 @@ using DalamudControlApp.Data.Models;
 using DalamudControlApp.Data.Enums;
 using DalamudControlApp.Util;
 using System.Collections.ObjectModel;
+using System.Text.Json;
 
 namespace DalamudControlApp
 {
@@ -51,7 +52,7 @@ namespace DalamudControlApp
             string command = CommandEntry.Text?.Trim();
             if (string.IsNullOrEmpty(command)) return;
             
-            await _webSocket.SendAsync(new ArraySegment<byte>(CommandHelper.createCommand(command, WebSocketActionType.Command)), WebSocketMessageType.Text, true, CancellationToken.None);
+            await _webSocket.SendAsync(new ArraySegment<byte>(CommandHelper.CreateCommand(command, WebSocketActionType.Command)), WebSocketMessageType.Text, true, CancellationToken.None);
             CommandEntry.Text = "";
         }
         
@@ -66,7 +67,7 @@ namespace DalamudControlApp
 
                 try
                 {
-                    var command = System.Text.Json.JsonSerializer.Deserialize<WebSocketMessage>(json);
+                    var command = System.Text.Json.JsonSerializer.Deserialize<WebSocketMessage<object>>(json);
                     if (command == null)
                     {
                         await DisplayAlert("Error", "Failed to deserialize message.", "OK");
@@ -82,7 +83,7 @@ namespace DalamudControlApp
 
             }
         }
-        private void ProcessCommand(WebSocketMessage command)
+        private void ProcessCommand(WebSocketMessage<object> command)
         {
             switch (command.Type)
             {
@@ -93,10 +94,16 @@ namespace DalamudControlApp
                     // Do something with the chat message
                     break;
                 case WebSocketActionType.InvalidCommandUsage:
-                    Log.Add(command.Data);
+                if(command.Data is JsonElement data && data.ValueKind == JsonValueKind.String)
+                {
+                    Log.Add(data.GetString());
+                }
                     break;
                 case WebSocketActionType.CommandResponse:
-                    Log.Add(command.Data);
+                if(command.Data is JsonElement dat && dat.ValueKind == JsonValueKind.String)
+                {
+                    Log.Add(dat.GetString());
+                }
                     break;
                 default:
                     break;

@@ -3,7 +3,6 @@ namespace DalamudControlApp;
 
 public partial class App : Application
 {
-	private readonly ClientWebSocket _server;
 	public App()
 	{
 		InitializeComponent();
