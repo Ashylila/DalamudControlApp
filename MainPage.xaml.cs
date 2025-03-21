@@ -100,13 +100,22 @@ namespace DalamudControlApp
                 }
                     break;
                 case WebSocketActionType.CommandResponse:
-                if(command.Data is JsonElement dat && dat.ValueKind == JsonValueKind.String)
-                {
-                    Log.Add(dat.GetString());
-                }
+                ProcessCommandResponse(command);
                     break;
                 default:
                     break;
+            }
+        }
+        private void ProcessCommandResponse(WebSocketMessage<object> command)
+        {
+            if(command.Data is JsonElement data)
+            {
+                var commandResponse = JsonSerializer.Deserialize<CommandResponse>(data.GetRawText());
+                if(commandResponse == null)
+                {
+                    return;
+                }
+                Log.Add($"[{commandResponse.Timestamp}] [{commandResponse.Type}]: {commandResponse.Message}");
             }
         }
             private void ProcessChatMessage(WebSocketMessage<object> command)

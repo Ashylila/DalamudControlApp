@@ -11,7 +11,6 @@ namespace DalamudControlApp
     public partial class ChatPage : ContentPage
     {
         public ObservableCollection<string> ChatMessages { get; } = new();
-        private List<ChatMessage> _chatMessages = new();
 
         public ChatPage()
         {
