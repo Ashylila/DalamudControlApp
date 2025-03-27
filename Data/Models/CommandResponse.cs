@@ -5,6 +5,5 @@ namespace DalamudControlApp.Data.Models
     {
         public CommandResponseType Type { get; set; }
         public string Message { get; set; }
-        public DateTime Timestamp { get; set; }
     }
 }

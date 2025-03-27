@@ -115,7 +115,7 @@ namespace DalamudControlApp
                 {
                     return;
                 }
-                Log.Add($"[{commandResponse.Timestamp}] [{commandResponse.Type}]: {commandResponse.Message}");
+                Log.Add($"[{DateTime.Now}] [{commandResponse.Type}]: {commandResponse.Message}");
             }
         }
             private void ProcessChatMessage(WebSocketMessage<object> command)
