@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Default Theme -->
+    <style name="Theme.Maui" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize the theme if necessary -->
+    </style>
+
+    <!-- Main Activity Theme -->
+    <style name="Theme.Maui.Main" parent="Theme.Maui">
+        <!-- Customize the Main Activity theme if necessary -->
+    </style>
+</resources>

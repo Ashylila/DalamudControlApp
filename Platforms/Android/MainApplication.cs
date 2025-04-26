@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Runtime;
 
-namespace DalamudControlApp;
+namespace DalamudControlApp.Platforms.Android;
 
 [Application]
 public class MainApplication : MauiApplication

@@ -6,15 +6,25 @@
     
     <Grid Padding="10">
         <!-- Chat Message List -->
-        <CollectionView ItemsSource="{Binding ChatMessages}"
-                        BackgroundColor="Black"
-                        VerticalOptions="FillAndExpand">
+        <CollectionView ItemsSource="{Binding ChatMessages}">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Label Text="{Binding .}"
-                           TextColor="White"
-                           FontSize="14"
-                           Padding="5"/>
+                    <Frame Padding="10" Margin="5" BackgroundColor="Black" CornerRadius="10">
+                        <Label>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="[" TextColor="Gray"/>
+                                    <Span Text="{Binding Timestamp}" TextColor="Gray"/>
+                                    <Span Text="] [" TextColor="Gray"/>
+                                    <Span Text="{Binding Type}" TextColor="DodgerBlue"/>
+                                    <Span Text="] " TextColor="Gray"/>
+                                    <Span Text="{Binding Sender}" TextColor="LightGreen" FontAttributes="Bold"/>
+                                    <Span Text=": " TextColor="White"/>
+                                    <Span Text="{Binding Message}" TextColor="White"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Frame>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>

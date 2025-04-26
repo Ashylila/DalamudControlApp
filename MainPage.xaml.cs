@@ -31,7 +31,7 @@ namespace DalamudControlApp
             _webSocket = new ClientWebSocket();
             try
             {
-                await _webSocket.ConnectAsync(new Uri("ws://localhost:5000"), CancellationToken.None);
+                await _webSocket.ConnectAsync(new Uri("ws://65.38.98.16:5000/ws"), CancellationToken.None);
                 await DisplayAlert("Success", "Connected to WebSocket server!", "OK");
                 _ = ReceiveMessages();
             }
@@ -50,11 +50,27 @@ namespace DalamudControlApp
             }
 
             string command = CommandEntry.Text?.Trim();
-            if (string.IsNullOrEmpty(command)) return;
-            
-            await _webSocket.SendAsync(new ArraySegment<byte>(CommandHelper.CreateCommand(command, WebSocketActionType.Command)), WebSocketMessageType.Text, true, CancellationToken.None);
-            CommandEntry.Text = "";
+            if (string.IsNullOrEmpty(command))
+            {
+                await DisplayAlert("Error", "Command cannot be empty.", "OK");
+                return;
+            }
+    
+            // Ensure we create the command correctly
+            var commandBytes = CommandHelper.CreateCommand(command, WebSocketActionType.Command);
+
+            try
+            {
+                await _webSocket.SendAsync(new ArraySegment<byte>(commandBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+                CommandEntry.Text = "";
+            }
+            catch (Exception ex)
+            {
+                // Catch exceptions during sending
+                await DisplayAlert("Error", $"Failed to send command: {ex.Message}", "OK");
+            }
         }
+
         
         private async Task ReceiveMessages()
         {
@@ -127,7 +143,7 @@ namespace DalamudControlApp
                     {
                         return;
                     }
-                    ChatService.ChatMessages.Add($"[{chatMessage.Timestamp}] [{chatMessage.Type}] {chatMessage.Sender}: {chatMessage.Message}");
+                    ChatService.ChatMessages.Add(chatMessage);
                     ChatService._chatMessages.Add(chatMessage);
                 }
             }
