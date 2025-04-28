@@ -31,6 +31,22 @@ namespace DalamudControlApp.Util
             _suppressNotification = false;
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
+        
+        
+        public void RemoveRange(int index, int count)
+        {
+            // Check for valid range
+            if (index < 0 || count < 0 || index >= Count)
+                throw new ArgumentOutOfRangeException();
+
+            // Ensure we don't go out of bounds
+            int endIndex = Math.Min(index + count, Count);
+
+            for (int i = endIndex - 1; i >= index; i--)
+            {
+                RemoveAt(i);
+            }
+        }
         /// <summary>
         /// Inserts a range of items into the collection at the specified index.
         /// </summary>

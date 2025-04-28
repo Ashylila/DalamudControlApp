@@ -66,7 +66,7 @@ namespace DalamudControlApp
                 {
                     selectedFilterType = value;
                     OnPropertyChanged();
-                    UpdateFilteredChatMessages(false);
+                    UpdateFilteredChatMessages();
                 }
             }
         }
@@ -99,46 +99,100 @@ namespace DalamudControlApp
             ChatMessages.CollectionChanged += ChatMessages_CollectionChanged;
             Instance = this;
         }
+        
 
-        private void ChatMessages_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+private const int MaxMessages = 300; 
+
+private bool isUpdating = false;  
+
+private DateTime lastMessageTime = DateTime.MinValue;
+
+private async void ChatMessages_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+{
+    if (isUpdating) return;
+
+    isUpdating = true;
+
+    try
+    {
+        if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems != null && e.NewItems.Count == 1)
         {
-            if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems?.Count == 1)
+            var msg = (ChatMessage)e.NewItems[0];
+
+            // Throttling updates: If the time between updates is very short, skip this one.
+            if (DateTime.Now - lastMessageTime < TimeSpan.FromMilliseconds(50))
             {
-                var msg = (ChatMessage)e.NewItems[0];
+                return;
+            }
+
+            lastMessageTime = DateTime.Now;
+
+            // Prevent adding duplicates to the filtered collection
+            if (!FilteredChatMessages.Contains(msg))
+            {
                 if (msg.Type == XivChatType.TellIncoming && !ChatTypes.Contains(msg.Sender))
                     ChatTypes.Add(msg.Sender);
 
-                if (ChatMessages.Count > 300)
-                    ChatMessages.RemoveAt(0);
-
                 if (SelectedFilterType == "All" || msg.Type.ToString() == SelectedFilterType)
                 {
-                    if (FilteredChatMessages.Count > 300)
-                        FilteredChatMessages.RemoveAt(0);
-
-                    FilteredChatMessages.Add(msg);
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        FilteredChatMessages.Add(msg);
+                        // Limit the number of messages to MaxMessages
+                        if (FilteredChatMessages.Count > MaxMessages)
+                        {
+                            FilteredChatMessages.RemoveAt(0);
+                        }
+                    });
                     ScrollToBottom();
+
                 }
             }
-            else
+        }
+        else
+        {
+            MainThread.BeginInvokeOnMainThread(UpdateFilteredChatMessages);
+        }
+    }
+    finally
+    {
+        isUpdating = false;
+    }
+}
+
+private async void UpdateFilteredChatMessages()
+{
+    
+    await Task.Run(() =>
+    {
+        var filtered = new List<ChatMessage>();
+
+        foreach (var msg in ChatMessages)
+        {
+            if (msg.Type == XivChatType.TellIncoming && !ChatTypes.Contains(msg.Sender))
+                ChatTypes.Add(msg.Sender);
+
+            if (SelectedFilterType == "All" || msg.Type.ToString() == SelectedFilterType)
             {
-                UpdateFilteredChatMessages(true);
+                filtered.Add(msg);
             }
         }
-
-
-        private void UpdateFilteredChatMessages(bool scroll)
+        
+        MainThread.BeginInvokeOnMainThread(() =>
         {
-            var filtered = ChatMessages.Where(msg =>
-                    SelectedFilterType == "All" || msg.Type.ToString() == SelectedFilterType)
-                .TakeLast(300)
-                .ToList();
-
             FilteredChatMessages.ReplaceRange(filtered);
 
-            if (scroll)
-                ScrollToBottom();
-        }
+            
+            if (FilteredChatMessages.Count > MaxMessages)
+            {
+                FilteredChatMessages.RemoveRange(0, FilteredChatMessages.Count - MaxMessages);
+            }
+
+            ScrollToBottom();
+        });
+    });
+}
+
 
 
         private async void OnSendButtonClicked(object sender, EventArgs e)
