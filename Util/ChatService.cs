@@ -1,9 +1,10 @@
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using DalamudControlApp.Data.Models;
+using DalamudControlApp.Util;
 
+namespace DalamudControlApp.Util;
 public static class ChatService
 {
-    public static ObservableCollection<ChatMessage> ChatMessages { get; } = new();
-    public static List<ChatMessage> _chatMessages = new();  
+    public static ObservableRangeCollection<ChatMessage> ChatMessages { get; } = new();
 }

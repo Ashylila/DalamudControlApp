@@ -12,15 +12,22 @@ namespace DalamudControlApp
     {
         public ObservableCollection<string> Log {get;} = new();
         public ClientWebSocket _webSocket;
+        public static MainPage? Instance { get; private set; }
 
         public MainPage()
         {
             InitializeComponent();
             BindingContext = this;
             Log.Add("Welcome to Dalamud Control App!");
+            Instance = this;
         }
 
-        private async void OnConnectClicked(object sender, EventArgs e)
+        protected override async void OnAppearing()
+        {
+            if (_webSocket != null && _webSocket.State == WebSocketState.Open) return;
+            await OnConnectClicked();
+        }
+        private async Task OnConnectClicked()
         {
             if (_webSocket != null && _webSocket.State == WebSocketState.Open)
             {
@@ -144,7 +151,6 @@ namespace DalamudControlApp
                         return;
                     }
                     ChatService.ChatMessages.Add(chatMessage);
-                    ChatService._chatMessages.Add(chatMessage);
                 }
             }
         

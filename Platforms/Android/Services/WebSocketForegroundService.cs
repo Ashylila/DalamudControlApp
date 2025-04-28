@@ -39,7 +39,25 @@ public class WebSocketForegroundService : Service
         _socket?.Dispose();
         Instance = null; // <---- Clean up
     }
+    
+    public void SaveChatMessages(List<ChatMessage> messages)
+    {
+        string path = Path.Combine(ApplicationContext.FilesDir!.AbsolutePath, CacheFileName);
+        string json = File.ReadAllText(path);
+        var existingMessages = JsonSerializer.Deserialize<List<ChatMessage>>(json) ?? new List<ChatMessage>();
+        existingMessages.AddRange(messages);
+        var jsonString = JsonSerializer.Serialize(existingMessages);
+        File.WriteAllText(path, jsonString);
+    }
+    public List<ChatMessage> LoadChatMessages()
+    {
+        string path = Path.Combine(ApplicationContext.FilesDir!.AbsolutePath, CacheFileName);
+        if (!File.Exists(path))
+            return new List<ChatMessage>();
 
+        var json = File.ReadAllText(path);
+        return JsonSerializer.Deserialize<List<ChatMessage>>(json) ?? new List<ChatMessage>();
+    }
     private void StartForegroundServiceWithNotification()
     {
         const string channelId = "dalamudcontrolapp_ws_channel";
@@ -114,7 +132,7 @@ public class WebSocketForegroundService : Service
                 break;
         }
     }
-
+    
     private void ProcessChatMessage(WebSocketMessage<object> command)
     {
         if (command.Data is JsonElement data)
@@ -140,8 +158,7 @@ public class WebSocketForegroundService : Service
             notificationManager.Notify(2, notification);
         }
     }
-
-    // 🧠 Expose a method to fetch all cached messages (for when the app opens)
+    
     public List<ChatMessage> GetCachedMessages()
     {
         lock (_cachedMessages)

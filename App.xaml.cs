@@ -1,5 +1,6 @@
 ﻿using System.Net.WebSockets;
 using System;
+
 namespace DalamudControlApp;
 
 public partial class App : Application

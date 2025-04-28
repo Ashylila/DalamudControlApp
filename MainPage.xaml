@@ -4,15 +4,8 @@
              x:Class="DalamudControlApp.MainPage"
              BackgroundColor="Black">
 
-    <Grid RowDefinitions="50,*,Auto" Padding="10">
-
-        <!-- Connect Button at the Top -->
-        <Button Text="Connect"
-                Clicked="OnConnectClicked"
-                BackgroundColor="DarkGray"
-                TextColor="White"
-                Grid.Row="0"
-                />
+    <Grid RowDefinitions="1,*,Auto" Padding="10">
+        
 
         <!-- Console Output (fills available space) -->
         <CollectionView ItemsSource="{Binding Log}"

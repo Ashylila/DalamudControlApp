@@ -1,32 +1,68 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="DalamudControlApp.ChatPage"
              BackgroundColor="Black">
-    
+
     <Grid Padding="10">
-        <!-- Chat Message List -->
-        <CollectionView ItemsSource="{Binding ChatMessages}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Picker 
+            Grid.Row="0"
+            ItemsSource="{Binding FilterChatTypes}" 
+            SelectedItem="{Binding SelectedFilterType}" 
+            BackgroundColor="Black" 
+            TextColor="White" 
+            Margin="0,0,0,10" />
+
+        <CollectionView 
+            Grid.Row="1"
+            ItemsSource="{Binding FilteredChatMessages}"
+            x:Name="ChatMessagesCollectionView"
+            Scrolled="ChatMessagesCollectionView_Scrolled"
+            ItemsUpdatingScrollMode="KeepScrollOffset">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" />
+            </CollectionView.ItemsLayout>
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Frame Padding="10" Margin="5" BackgroundColor="Black" CornerRadius="10">
-                        <Label>
-                            <Label.FormattedText>
-                                <FormattedString>
-                                    <Span Text="[" TextColor="Gray"/>
-                                    <Span Text="{Binding Timestamp}" TextColor="Gray"/>
-                                    <Span Text="] [" TextColor="Gray"/>
-                                    <Span Text="{Binding Type}" TextColor="DodgerBlue"/>
-                                    <Span Text="] " TextColor="Gray"/>
-                                    <Span Text="{Binding Sender}" TextColor="LightGreen" FontAttributes="Bold"/>
-                                    <Span Text=": " TextColor="White"/>
-                                    <Span Text="{Binding Message}" TextColor="White"/>
-                                </FormattedString>
-                            </Label.FormattedText>
-                        </Label>
-                    </Frame>
+                    <VerticalStackLayout Padding="5">
+                        <HorizontalStackLayout Spacing="5">
+                            <Label Text="{Binding FormattedTimestamp}" TextColor="Gray" FontSize="12" VerticalOptions="Center"/>
+                            <Label Text="{Binding Type}" TextColor="{Binding TypeColor}" FontSize="12" VerticalOptions="Center"/>
+                            <Label Text="{Binding Sender}" TextColor="LightBlue" FontAttributes="Bold" FontSize="14" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                        <Label Text="{Binding Message}" TextColor="White" FontSize="14" LineBreakMode="WordWrap" Margin="0,2,0,0"/>
+                    </VerticalStackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
+        <StackLayout 
+            Grid.Row="2" 
+            Orientation="Horizontal" 
+            Padding="10"
+            HorizontalOptions="FillAndExpand" 
+            VerticalOptions="Center">
+            <Picker ItemsSource="{Binding ChatTypes}" SelectedItem="{Binding SelectedChatType}"
+                    BackgroundColor="Black" TextColor="White" 
+                    Margin="0,4" 
+                    HorizontalOptions="Start" 
+                    HeightRequest="40" />
+            <Entry x:Name="MessageInput" Placeholder="Type a message..." 
+                   Text="{Binding OutgoingMessage}" 
+                   HorizontalOptions="FillAndExpand" 
+                   Margin="4,0" 
+                   HeightRequest="40" />
+            <Button Text="Send" Clicked="OnSendButtonClicked" 
+                    HorizontalOptions="End" 
+                    Padding="10" 
+                    HeightRequest="40" />
+        </StackLayout>
+
     </Grid>
 </ContentPage>
