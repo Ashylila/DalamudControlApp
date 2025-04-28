@@ -24,23 +24,32 @@
             ItemsSource="{Binding FilteredChatMessages}"
             x:Name="ChatMessagesCollectionView"
             Scrolled="ChatMessagesCollectionView_Scrolled"
+            IsGrouped="False"
             ItemsUpdatingScrollMode="KeepScrollOffset">
+    
+            <!-- Using LinearItemsLayout for vertical scrolling -->
             <CollectionView.ItemsLayout>
-                <LinearItemsLayout Orientation="Vertical" />
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="5" />
             </CollectionView.ItemsLayout>
+
+            <!-- ItemTemplate to define the layout of each message -->
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <VerticalStackLayout Padding="5">
-                        <HorizontalStackLayout Spacing="5">
+                    <VerticalStackLayout Padding="5" Spacing="3">
+                        <!-- Header: Timestamp, Type, Sender -->
+                        <HorizontalStackLayout Spacing="5" VerticalOptions="Center">
                             <Label Text="{Binding FormattedTimestamp}" TextColor="Gray" FontSize="12" VerticalOptions="Center"/>
                             <Label Text="{Binding Type}" TextColor="{Binding TypeColor}" FontSize="12" VerticalOptions="Center"/>
                             <Label Text="{Binding Sender}" TextColor="LightBlue" FontAttributes="Bold" FontSize="14" VerticalOptions="Center"/>
                         </HorizontalStackLayout>
+                
+                        <!-- Message Content -->
                         <Label Text="{Binding Message}" TextColor="White" FontSize="14" LineBreakMode="WordWrap" Margin="0,2,0,0"/>
                     </VerticalStackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
 
         <StackLayout 
             Grid.Row="2" 

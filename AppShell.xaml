@@ -6,7 +6,17 @@
     xmlns:local="clr-namespace:DalamudControlApp"
     Shell.FlyoutBehavior="Flyout"
     Title="DalamudControlApp">
-
+<Shell.ToolbarItems>
+    <ToolbarItem
+        x:Name="SettingsToolbarItem"
+        Text="Settings"
+        IconImageSource="settings.png"
+        Clicked="OnSettingsClicked"
+        Order="Primary"
+        Priority="0">
+        
+    </ToolbarItem>
+</Shell.ToolbarItems>
     <ShellContent
         Title="Console"
         ContentTemplate="{DataTemplate local:MainPage}"

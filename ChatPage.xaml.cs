@@ -86,6 +86,8 @@ namespace DalamudControlApp
         }
 
         public bool IsLoadingMessages { get; set; } = false;
+        private bool _isScrolling = false;
+        private bool _isScrollingTimerRunning = false;
 
         public ChatPage()
         {
@@ -119,7 +121,7 @@ private async void ChatMessages_CollectionChanged(object? sender, NotifyCollecti
         {
             var msg = (ChatMessage)e.NewItems[0];
 
-            // Throttling updates: If the time between updates is very short, skip this one.
+            
             if (DateTime.Now - lastMessageTime < TimeSpan.FromMilliseconds(50))
             {
                 return;
@@ -127,7 +129,7 @@ private async void ChatMessages_CollectionChanged(object? sender, NotifyCollecti
 
             lastMessageTime = DateTime.Now;
 
-            // Prevent adding duplicates to the filtered collection
+            
             if (!FilteredChatMessages.Contains(msg))
             {
                 if (msg.Type == XivChatType.TellIncoming && !ChatTypes.Contains(msg.Sender))
@@ -144,8 +146,8 @@ private async void ChatMessages_CollectionChanged(object? sender, NotifyCollecti
                             FilteredChatMessages.RemoveAt(0);
                         }
                     });
-                    ScrollToBottom();
-
+                    if(!_isScrolling)
+                        ScrollToBottom();
                 }
             }
         }
@@ -187,8 +189,8 @@ private async void UpdateFilteredChatMessages()
             {
                 FilteredChatMessages.RemoveRange(0, FilteredChatMessages.Count - MaxMessages);
             }
-
-            ScrollToBottom();
+            if(!_isScrolling)
+                ScrollToBottom();
         });
     });
 }
@@ -235,15 +237,20 @@ private async void UpdateFilteredChatMessages()
 
         private void ScrollToBottom()
         {
-            MainThread.BeginInvokeOnMainThread(async () =>
+            if (!_isScrolling)
             {
-                if (ChatMessagesCollectionView.ItemsSource is ICollection<ChatMessage> collection && collection.Count > 0)
+                MainThread.BeginInvokeOnMainThread(async () =>
                 {
-                    await Task.Delay(1);
-                    ChatMessagesCollectionView.ScrollTo(collection.Last(), position: ScrollToPosition.End, animate: true);
-                }
-            });
+                    if (ChatMessagesCollectionView.ItemsSource is ICollection<ChatMessage> collection && collection.Count > 0)
+                    {
+                        await Task.Delay(10);
+                        ChatMessagesCollectionView.ScrollTo(collection.Last(), position: ScrollToPosition.End, animate: false);
+                    }
+                });
+            }
         }
+
+
 
 
         private async void LoadMoreMessages()
@@ -302,12 +309,33 @@ private async void UpdateFilteredChatMessages()
 
         private void ChatMessagesCollectionView_Scrolled(object sender, ItemsViewScrolledEventArgs e)
         {
-            if (e.VerticalOffset == 0)
+            _isScrolling = true;
+            
+            if (e.VerticalOffset == 0 && !IsLoadingMessages)
             {
 #if ANDROID
                 LoadMoreMessages();
 #endif
             }
+
+            if (_isScrollingTimerRunning)
+                return;
+            
+            StartScrollStopTimer();
+        }
+        private async void StartScrollStopTimer()
+        {
+            _isScrollingTimerRunning = true;
+            
+            await Task.Delay(200);
+            
+            if (_isScrolling)
+            {
+                _isScrolling = false;
+
+            }
+
+            _isScrollingTimerRunning = false;
         }
 
 #if ANDROID
